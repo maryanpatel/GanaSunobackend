@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require ('mongoose')
 
 const musicSchema = new mongoose.Schema({
     uri: {
@@ -12,7 +12,6 @@ const musicSchema = new mongoose.Schema({
     artist: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
-        required: "true"
     }
 
 })

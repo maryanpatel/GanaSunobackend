@@ -11,9 +11,9 @@ async function createMusic(req, res) {
 
   try {
     const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECERT);
-    if (decoded.role === "user") {
+    if (decoded.role !== "artist") {
       return res.status(403).json({
-        message: "You don't have access to crete an music",
+        message: "You don't have access to create a music",
       });
     }
 
@@ -22,7 +22,7 @@ async function createMusic(req, res) {
 
     const result = await uploadFile(file.buffer.toString("base64"));
 
-    const music = new musicModel({
+    const music = await musicModel.create({
       uri: result.url,
       title,
       artist: decoded.id,
@@ -32,10 +32,11 @@ async function createMusic(req, res) {
       music,
     });
   } catch (err) {
+    console.error(err.message);
     return res.status(401).json({
       message: "unothorized",
     });
   }
 }
 
-module.exports = { createMusic };
+module.exports = { createMusic }
