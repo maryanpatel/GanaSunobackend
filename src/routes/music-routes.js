@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const { createMusic } = require("../controllers/music-controllers")
+const { createMusic,createAlbum } = require("../controllers/music-controllers")
 const isLoggedin = require ("../middleware/isLoggedin")
 const multer = require("multer")
 const upload = multer({
@@ -8,5 +8,6 @@ const upload = multer({
 })
 
 router.post("/create", upload.single("file"), createMusic)
+router.post("/album", upload.single("file"), createAlbum)
 
 module.exports = router

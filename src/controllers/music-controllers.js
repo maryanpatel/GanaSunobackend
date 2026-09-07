@@ -1,4 +1,5 @@
 const musicModel = require("../models/music-model");
+const albumModel = require("../models/album-model");
 const jwt = require("jsonwebtoken");
 const { uploadFile } = require("../services/storag-service");
 
@@ -37,5 +38,36 @@ async function createMusic(req, res) {
     });
   }
 }
+async function createAlbum(req, res) {
+  if (!req.cookies.token) {
+    return res.status(401).json({
+      message: "Need to login first",
+    });
+  }
+  try {
+    const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECERT)
 
-module.exports = { createMusic };
+    if( decoded.role !== "artist") {
+      return res.status(403).json({
+        message: "You don't have access to create albums"
+      })
+
+      const { title, musicIds } = req.body
+
+      const album = await albumModel.create({
+        title,
+        musics: musicIds,
+        artist: decoded.id
+      })
+      res.status(201).json({
+        message: "Album created successfully ",
+        album,
+      })
+    }
+  } catch (err) {
+    return res.status(401).json({
+      message: "Internal error at createalbum",
+    });
+  }
+}
+module.exports = { createMusic,createAlbum };
