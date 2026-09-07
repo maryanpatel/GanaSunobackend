@@ -12,9 +12,9 @@ async function createMusic(req, res) {
 
   try {
     const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECERT);
-    if (decoded.role === "user") {
+    if (decoded.role !== "artist") {
       return res.status(403).json({
-        message: "You don't have access to crete an music",
+        message: "You don't have access to create a music",
       });
     }
 
@@ -23,7 +23,7 @@ async function createMusic(req, res) {
 
     const result = await uploadFile(file.buffer.toString("base64"));
 
-    const music = new musicModel({
+    const music = await musicModel.create({
       uri: result.url,
       title,
       artist: decoded.id,
@@ -33,6 +33,7 @@ async function createMusic(req, res) {
       music,
     });
   } catch (err) {
+    console.error(err.message);
     return res.status(401).json({
       message: "unothorized",
     });
@@ -45,29 +46,29 @@ async function createAlbum(req, res) {
     });
   }
   try {
-    const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECERT)
-
-    if( decoded.role !== "artist") {
+    const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECERT);
+    if (decoded.role !== "artist") {
       return res.status(403).json({
-        message: "You don't have access to create albums"
-      })
-
-      const { title, musicIds } = req.body
-
-      const album = await albumModel.create({
-        title,
-        musics: musicIds,
-        artist: decoded.id
-      })
-      res.status(201).json({
-        message: "Album created successfully ",
-        album,
-      })
+        message: "You don't have access to create albums",
+      });
     }
+
+    const { title, musicIds } = req.body;
+
+    const album = await albumModel.create({
+      title,
+      musics: musicIds,
+      artist: decoded.id,
+    });
+    res.status(201).json({
+      message: "Album created successfully",
+      album,
+    });
   } catch (err) {
     return res.status(401).json({
       message: "Internal error at createalbum",
     });
   }
 }
-module.exports = { createMusic,createAlbum };
+
+module.exports = { createMusic, createAlbum };
