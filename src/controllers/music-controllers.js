@@ -33,4 +33,35 @@ async function createAlbum(req, res) {
   });
 }
 
-module.exports = { createMusic, createAlbum };
+async function getMusics(req, res) {
+  const musics = await musicModel.find().populate("artist", "email username");
+  res.status(201).json({
+    message: "musics fethch successfully",
+    musics,
+  });
+}
+
+async function getAlbums(req, res) {
+  const albums = await albumModel.find().select("title artist").populate("artist", "email username");
+  res.status(201).json({
+    message: "Albums fethch successfully",
+    albums,
+  });
+}
+
+async function getAlbumById(req, res){
+  try{
+    const album = await albumModel.findOne({ _id: req.params.albumId}).populate("musics").populate("artist", "email username")
+    res.status(201).json({
+      message: "album fetch successfully ",
+      album,
+    })
+
+  }catch(err){
+    res.status(401).json({
+      message: "internal error occured at finding album"
+    })
+  }
+}
+
+module.exports = { createMusic, createAlbum, getMusics, getAlbums, getAlbumById };
